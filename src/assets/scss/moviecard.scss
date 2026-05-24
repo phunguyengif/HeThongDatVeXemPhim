@@ -1,0 +1,110 @@
+.movie-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 280%;
+    font-family: 'Open Sans', sans-serif;
+
+    &__poster-box {
+        position: relative;
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        aspect-ratio: 2/3;
+        cursor: pointer;
+    }
+
+    &__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+
+    &__title {
+        color: #000000;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 12px 0;
+        text-align: left;
+
+        /* --- XÓA CÁC THUỘC TÍNH CANH 1 DÒNG CŨ (như white-space: nowrap) --- */
+        /* --- THÊM CÁC THUỘC TÍNH MA THUẬT DƯỚI ĐÂY --- */
+        display: -webkit-box;
+        /* Ép phần tử hiển thị theo dạng box của webkit */
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        /* SỐ DÒNG CỐ ĐỊNH: Bạn muốn 2 dòng thì điền số 2 */
+        -webkit-box-orient: vertical;
+        /* Thiết lập hướng xếp của box theo chiều dọc */
+        overflow: hidden;
+        /* Giấu hoàn toàn phần chữ thừa từ dòng thứ 3 đổ đi */
+        text-overflow: ellipsis;
+
+        line-height: 1.4;
+        min-height: calc(1.1rem * 1.4 * 2);
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+
+    }
+
+    &__btn-trailer {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #000000;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+
+        &:hover .movie-card__text-underline {
+            text-decoration: underline;
+        }
+    }
+
+    &__icon-play {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border: 2px solid #000000;
+        border-radius: 50%;
+        font-size: 0.65rem;
+        padding-left: 2px;
+        /* Lệch nhẹ để tâm tam giác nằm chính giữa vòng tròn */
+    }
+
+    &__btn-book {
+        background: linear-gradient(to right, #663399 50%, #f3ea28 50%);
+
+        background-size: 200% 100%;
+
+        background-position: right bottom;
+
+        transition: all 0.5s ease-out;
+
+        color: #000000;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 24px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+
+        &:hover {
+            background-position: left bottom;
+        }
+    }
+
+}

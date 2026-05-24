@@ -1,0 +1,152 @@
+/* Reset cơ bản */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* Header Container chính */
+.cinestar-container{
+    width: 100%;
+    position: sticky; 
+    top: 0;
+    z-index: 1000;
+    background-color: #e0e0e7;
+}
+.cinestar-header {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0px;;
+    z-index: 1000;
+    border-radius: 8px;
+}
+
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+/* --- PHẦN TRÊN --- */
+.header-top {
+    /* Đây là chìa khóa của dấu gạch ngang */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+}
+
+.top-actions-button {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 350px;
+}
+
+.top-actions-active {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Nút bấm */
+.btn {
+    padding: 8px 15px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    flex: 1;
+    white-space: nowrap;
+}
+
+.btn-dat-ve {
+    background: linear-gradient(to right, #663399 50%, #f3ea28 50%);
+
+    background-size: 200% 100%;
+
+    background-position: right bottom;
+
+    transition: all 0.5s ease-out;
+    border: none;
+    padding: 10px 25px;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn-dat-ve:hover {
+    background-position: left bottom;
+    color: #fff;
+}
+
+.btn-dat-bap {
+    background: linear-gradient(to right, #ff8102 50%, #663399 50%);
+
+    background-size: 200% 100%;
+
+    background-position: right bottom;
+
+    transition: all 0.5s ease-out;
+    border: none;
+    padding: 10px 25px;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn-dat-bap:hover {
+    background-position: left bottom;
+    color: #fff;
+}
+.search-btn{
+    border: none;
+    background: transparent;
+}
+
+/* Thanh search bo tròn */
+.search-bar {
+    background: white;
+    border-radius: 25px;
+    padding: 3px 15px;
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input {
+    border: none;
+    outline: none;
+    padding: 5px;
+    width: 150px;
+}
+
+/* --- PHẦN DƯỚI --- */
+.header-bottom {
+    padding: 12px 0;
+}
+
+.header-bottom a {
+    color: #000000;
+    text-decoration: none;
+    font-size: 14px;
+    margin-right: 25px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.header-bottom a:hover {
+    color: #f4d03f;
+}
+
+/* Icon trong menu */
+.header-bottom i {
+    margin-right: 5px;
+    font-size: 16px;
+}

@@ -1,0 +1,421 @@
+.movie-detail {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3.5rem;
+    width: 100%;
+    color: #000000;
+    padding: 2rem 0;
+    font-family: 'Open Sans', sans-serif;
+
+    @media screen and (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    &__left {
+        width: 100%;
+    }
+
+    &__poster-box {
+        position: relative;
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        aspect-ratio: 2 / 3;
+    }
+
+    &__poster {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &__right {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: left;
+    }
+
+    &__title {
+        color: #000000;
+        font-size: 2.2rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    /* Hàng biểu tượng đặc tính */
+    &__meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        font-size: 1rem;
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+
+            i {
+                color: #f1e813;
+                font-size: 1.1rem;
+                width: 20px;
+                text-align: center;
+            }
+
+            span {
+                color: #000000;
+            }
+        }
+    }
+
+    /* Khung cảnh báo màu vàng */
+    &__age-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background-color: #f1e813;
+        color: #000000;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        line-height: 1.5;
+
+        i {
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
+
+    /* Định dạng các phân mục lớn (Mô tả, nội dung) */
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        border-left: 4px solid #f1e813;
+        /* Vạch vàng nhỏ bên trái tiêu đề mục */
+        padding-left: 10px;
+        margin: 0 0 0.8rem 0;
+        letter-spacing: 1px;
+    }
+
+    &__production {
+        p {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #000000;
+        }
+    }
+
+    &__synopsis {
+        .synopsis-text {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #000000;
+
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            line-clamp: 5;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+
+            &.expanded {
+                display: block;
+                /* Mở bung hoàn toàn text khi bấm Xem thêm */
+                overflow: visible;
+            }
+        }
+
+        .toggle-btn {
+            display: inline-block;
+            color: #f1e813;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: underline;
+            margin-top: 0.5rem;
+            cursor: pointer;
+        }
+    }
+
+    &__actions {
+        margin-top: 0.5rem;
+
+        .btn-trailer {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #000000;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.05rem;
+
+            &:hover .text-underline {
+                text-decoration: underline;
+            }
+        }
+
+        .icon-play {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: 2px solid #000000;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            padding-left: 3px;
+        }
+    }
+
+
+}
+
+.movie-schedule {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    margin: 3rem auto;
+
+
+    &__date-title {
+        color: #000000;
+        font-size: 2rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+        letter-spacing: 1px;
+    }
+
+    &__shedule-dates {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-bottom: 30px;
+
+    }
+
+    &__time {
+        width: 100%;
+    }
+
+    &__time-heade {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    &__time-item {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .schedule-date-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        width: 100px;
+        height: 100px;
+        border: 1px solid #f1e813;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.25s ease-in-out;
+
+        &:hover {
+            background-color: rgba(241, 232, 19, 0.1);
+            transform: translateY(-3px);
+        }
+
+
+        &.active {
+            background-color: #f1e813;
+            box-shadow: 0 0 15px rgba(241, 232, 19, 0.4);
+            /* Bóng đổ phát sáng nhẹ */
+
+            .schedule-date-item__text-date,
+            .schedule-date-item__text-day {
+                color: #3b1b7a;
+
+                font-weight: 700;
+            }
+
+        }
+    }
+
+    &__text-date {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #f1e813;
+        margin: 0 0 6px 0;
+    }
+
+    &__text-day {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #f1e813;
+        margin: 0;
+    }
+
+    &__popup-menu {
+        max-width: 200px;
+        position: relative;
+        background-color: transparent;
+
+        border: 1px solid #f1e813;
+        border-radius: 6px;
+        padding: 0.6rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex: 1;
+        min-width: 0;
+        cursor: pointer;
+        user-select: none;
+        transition: border-color 0.2s;
+
+        &:hover,
+        &.active {
+            border-color: #663399;
+        }
+    }
+
+    &__text {
+        margin: 0;
+        font-weight: 700;
+        color: #878b1a;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__arrow {
+        font-size: 0.7rem;
+        color: #666666;
+    }
+
+
+    /* POPUP MENU (Dropdown) */
+    &__dropdown {
+        position: absolute;
+        top: calc(100% + 5px);
+        left: 0;
+        width: max-content;
+        min-width: 100%;
+        background-color: #ffffff;
+        border: 1px solid #d0daff;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    &__item {
+        padding: 0.7rem 1.2rem;
+        color: #333333;
+        font-size: 0.9rem;
+        text-align: left;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+
+        &:hover {
+            background-color: #f0f4ff;
+            color: #663399;
+            font-weight: 600;
+        }
+    }
+
+    .time-container {
+        width: 100%;
+    }
+
+    .theater-time-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        font-size: 1rem;
+        background-color: #663399;
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 5px;
+
+        .theater-time-box {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+
+            &__info {
+                padding: 10px;
+            }
+
+        }
+
+        .theater-name {
+            color: #f1e813;
+            font-weight: 500;
+        }
+
+        .slots-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .theater-address{
+            font-weight: 500;
+        }
+
+        .slot-btn {
+            background-color: transparent;
+            outline: none;
+            cursor: pointer;
+
+            padding: 8px 20px;
+            min-width: 80px;
+
+            border: 1px solid #ffffff;
+            border-radius: 6px;
+
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+
+            text-align: center;
+
+            transition: all 0.25s ease-in-out;
+
+            &:hover {
+                color: #f3de66;
+                border-color: #f3de66;
+            
+                transform: translateY(-2px);
+            }
+
+            &:active {
+                transform: translateY(0) scale(0.98);
+            }
+        }
+
+    }
+
+
+}

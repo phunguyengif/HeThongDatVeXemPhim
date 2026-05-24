@@ -1,0 +1,137 @@
+.footer {
+  background: linear-gradient(90deg, #4c3799 0%, #2c54b8 100%);
+  color: #ffffff;
+  padding: 3rem 2rem;
+  margin-top: 60px;
+  font-family: 'Open Sans', sans-serif;
+  width: 100%;
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.8fr repeat(3, 0.8fr) 1.2fr;
+    gap: 2rem;
+
+    @media screen and (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media screen and (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__brand-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  &__logo {
+    img {
+      max-width: 180px;
+      height: auto;
+    }
+
+    p {
+      display: flex;
+      align-items: flex-start;
+    }
+  }
+
+  &__slogan {
+    display: flex;
+    align-items: flex-start;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+
+
+  &__socials {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.2rem;
+
+    a {
+      color: #ffffff;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  &__language {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  &__lang-current {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 600;
+
+    img {
+      border-radius: 2px;
+    }
+  }
+
+  &__links-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  &__title {
+    display: flex;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0;
+    color: #ffffff;
+    position: relative;
+  }
+
+  &__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    width: 100%;
+
+    li {
+      display: block; 
+      width: 100%;
+      text-align: left;
+      a {
+        display: inline-block;
+        width: 100%;
+        color: #e0e0e0;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: color 0.2s ease;
+        word-break: break-word;
+
+        &:hover {
+          color: #f1e813;
+        }
+      }
+    }
+  }
+}

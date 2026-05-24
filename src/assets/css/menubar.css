@@ -1,0 +1,54 @@
+.Admin-return {
+  font-size: 30px;
+}
+
+/* NAVIGATION BAR */
+.navv {
+  background-color: #343a40;
+  float: left;
+  width: 20%;
+  padding: 20px;
+  height: 100vh;
+  position: fixed;
+  overflow-y: auto;
+}
+
+.navv .navigation {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 20px;
+  font-size: 19px;
+}
+
+.navv .navigation li {
+  border-bottom: 1px solid #fff;
+}
+
+.navv .navigation li a {
+  padding: 10px 0;
+  display: block;
+  cursor: pointer;
+  color: aliceblue;
+  text-decoration: none;
+}
+
+.navv .navigation li a.active {
+  color: #80db66;
+}
+
+.navv .navigation li a:hover {
+  color: #80db66;
+}
+
+
+/* MAIN ARTICLE */
+article {
+  margin-left: 20%;
+  float: left;
+  width: 80%;
+  min-height: 100vh;
+  position: relative;
+  padding: 20px;
+  background-color: rgb(245 247 251);
+  color: black;
+}

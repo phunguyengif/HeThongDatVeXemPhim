@@ -1,0 +1,577 @@
+$color-dark: #0f172a;
+$color-primary: #3b82f6;
+$color-cancelled: #ef4444;
+$color-completed: #10b981;
+$color-scheduled: #f59e0b;
+$color-border: #cbd5e1;
+
+/* ==========================================================================
+   MÀN HÌNH TỔNG QUAN VÀ ĐIỀU HƯỚNG CHUNG
+   ========================================================================== */
+.showtime-manager {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+
+    /* Hỗ trợ thu nhỏ padding trên thiết bị di động */
+    @media screen and (max-width: 640px) {
+        padding: 12px;
+    }
+
+    // Filter Bar thanh công cụ đỉnh trang
+    &__filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        background-color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+
+        /* Trên máy tính bảng và điện thoại: Xếp dọc các bộ lọc */
+        @media screen and (max-width: 1024px) {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+
+            /* Điện thoại nhỏ: Nhãn nằm trên, ô input nằm dưới */
+            @media screen and (max-width: 480px) {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+
+                .date-picker {
+                    width: 100%;
+                    /* Giúp ô chọn ngày rộng hết cỡ */
+                }
+            }
+
+            .date-picker {
+                padding: 8px 12px;
+                border-radius: 6px;
+                border: 1px solid $color-border;
+                font-weight: 600;
+                outline: none;
+
+                &:focus {
+                    border-color: $color-primary;
+                }
+            }
+        }
+
+        .btn-switch-cinema {
+            background-color: #f1f5f9;
+            border: 1px solid $color-border;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: $color-dark;
+            white-space: nowrap;
+
+            &:hover {
+                background-color: #e2e8f0;
+            }
+
+            @media screen and (max-width: 1024px) {
+                text-align: center;
+            }
+        }
+
+        .btn-add-showtime {
+            background-color: $color-primary;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: auto; // Đẩy nút thêm mới về góc phải
+            white-space: nowrap;
+
+            &:hover {
+                background-color: #2563eb;
+            }
+
+            &:disabled {
+                background-color: #cbd5e1;
+                cursor: not-allowed;
+            }
+
+            /* Trên tablet/mobile: Hủy bỏ 'margin-left: auto' để nút chiếm đều dòng */
+            @media screen and (max-width: 1024px) {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+   KHỐI LAYOUT DÒNG TIMELINE LỊCH CHIẾU (XỬ LÝ THU PHÓNG KHÔNG BỂ KHUNG)
+   ========================================================================== */
+.showtime-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+    @media screen and (max-width: 640px) {
+        padding: 12px;
+    }
+
+    .timeline-row {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 16px;
+
+        &:last-child {
+            border: none;
+            padding-bottom: 0;
+        }
+
+        /* [MÁY TÍNH BẢNG & ĐIỆN THOẠI]: Chuyển Grid thành hàng dọc thay vì 2 cột */
+        @media screen and (max-width: 768px) {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        &__room-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            border-right: 2px dashed #e2e8f0;
+            padding-right: 16px;
+
+            /* Màn hình nhỏ: Bỏ đường vạch đứt bên phải, đổi thành vạch dưới */
+            @media screen and (max-width: 768px) {
+                border-right: none;
+                border-bottom: 1px dashed #e2e8f0;
+                padding-right: 0;
+                padding-bottom: 8px;
+                align-items: flex-start;
+            }
+
+            .room-name {
+                font-size: 16px;
+                font-weight: 700;
+                color: $color-dark;
+            }
+
+            .room-seats {
+                font-size: 12px;
+                color: #64748b;
+                font-weight: 500;
+            }
+        }
+
+        &__slots {
+            display: flex;
+            flex-wrap: nowrap;
+            /* BẮT BUỘC NOWRAP: Để kích hoạt thanh cuộn ngang khi quá nhiều suất */
+            gap: 12px;
+            padding-left: 20px;
+            align-items: center;
+
+            /* Kỹ thuật Responsive Kính mờ: Tự xuất hiện thanh cuộn ngang nếu danh sách giờ quá dài */
+            overflow-x: auto;
+            padding-bottom: 8px; // Tạo khoảng thở tránh đè lên thanh cuộn của trình duyệt
+            width: 100%;
+
+            @media screen and (max-width: 768px) {
+                padding-left: 0;
+            }
+
+            /* Tùy chỉnh thanh cuộn tinh tế, không thô kệch */
+            &::-webkit-scrollbar {
+                height: 5px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 4px;
+            }
+
+            .empty-slot-hint {
+                width: 100%;
+                min-width: 200px;
+                /* Đảm bảo ô trống không bị bóp nghẹt trên mobile */
+                padding: 16px;
+                text-align: center;
+                border: 2px dashed #cbd5e1;
+                color: #94a3b8;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 13px;
+                font-style: italic;
+                font-weight: 500;
+                transition: all 0.2s;
+                white-space: nowrap;
+
+                &:hover {
+                    background-color: #f8fafc;
+                    border-color: $color-primary;
+                    color: $color-primary;
+                }
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+   CỤC KHỐI SUẤT CHIẾU LẺ TRÊN TIMELINE
+   ========================================================================== */
+.showtime-block {
+    width: 260px;
+    min-width: 240px;
+    /* Ngăn chặn co rúm khi màn hình thu nhỏ */
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+    transition: transform 0.15s, box-shadow 0.15s;
+    border-left: 5px solid rgba(0, 0, 0, 0.3);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &--scheduled {
+        background-color: $color-scheduled;
+        /* Sử dụng biến cho chuẩn màu vàng cam */
+    }
+
+    &--completed {
+        background-color: $color-completed;
+        opacity: 0.75;
+    }
+
+    &--cancelled {
+        background-color: $color-cancelled;
+        text-decoration: line-through;
+        opacity: 0.6;
+    }
+
+    &__time {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        background-color: rgba(0, 0, 0, 0.15);
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    &__movie-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 600;
+
+        .badge-status {
+            background-color: rgba(255, 255, 255, 0.25);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+        }
+    }
+}
+
+/* ==========================================================================
+   HỆ THỐNG MODAL POPUPS (CĂN CHỈNH KÍCH THƯỚC TRÀN VIỀN MOBILE)
+   ========================================================================== */
+.showtime-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 16px;
+    /* Tạo khoảng thở an toàn, tránh dính sát mép điện thoại */
+
+    &__backdrop {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(2px);
+    }
+
+    &__content {
+        position: relative;
+        background-color: white;
+        padding: 24px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 480px;
+        /* Tự động thu nhỏ theo chiều rộng màn hình */
+        max-height: 90vh;
+        /* Giới hạn chiều cao tối đa không vượt quá màn hình */
+        overflow-y: auto;
+        /* Tự xuất hiện thanh cuộn dọc nếu nội dung form quá dài */
+        z-index: 10;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+
+        @media screen and (max-width: 480px) {
+            padding: 16px;
+        }
+
+        h3 {
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: $color-dark;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        &--detail {
+            max-width: 620px;
+            /* Co giãn linh hoạt lên tới 620px trên Desktop */
+        }
+    }
+}
+
+// FORM NHẬP LIỆU LÊN LỊCH SUẤT CHIẾU
+.showtime-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            border: 1px solid $color-border;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            /* Đảm bảo phủ rộng hoàn toàn ô chứa */
+
+            &:focus {
+                border-color: $color-primary;
+            }
+        }
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+
+        /* Trên màn hình điện thoại: Phá vỡ 2 cột, dồn thành 1 cột dọc thẳng đứng */
+        @media screen and (max-width: 480px) {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+    }
+}
+
+/* ==========================================================================
+   XEM CHUYÊN SÂU CHI TIẾT PHIM TRONG POPUP 3
+   ========================================================================== */
+.showtime-detail-wrapper {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+
+    /* Điện thoại và Máy tính bảng nhỏ: Chuyển sang hàng dọc, đưa poster ra chính giữa */
+    @media screen and (max-width: 580px) {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+    }
+
+    .movie-poster-preview {
+        width: 150px;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+    }
+
+    .detail-info {
+        width: 100%;
+
+        h4 {
+            margin: 0 0 12px 0;
+            font-size: 20px;
+            color: $color-dark;
+            font-weight: 700;
+        }
+
+        p {
+            margin: 0 0 8px 0;
+            font-size: 13.5px;
+            color: #475569;
+        }
+
+        .time-highlight {
+            color: $color-primary;
+            font-weight: 700;
+            background-color: #eff6ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .price-tag {
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .status-badge {
+            font-weight: 700;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+    }
+}
+
+/* ==========================================================================
+   HỆ THỐNG NÚT BẤM BUTTONS (HỖ TRỢ THU NHỎ MOBILE THÀNH CỘT DỌC)
+   ========================================================================== */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 16px;
+
+    /* Trên điện thoại: Xếp chồng các nút bấm lên nhau theo hàng dọc */
+    @media screen and (max-width: 480px) {
+        flex-direction: column-reverse;
+        /* Đảo nút Hủy xuống dưới cùng, nút Submit lên trên */
+        align-items: stretch;
+        /* Đẩy độ rộng nút tràn viền */
+        gap: 8px;
+    }
+
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        width: auto;
+
+        @media screen and (max-width: 480px) {
+            width: 100%;
+            /* Tràn viền trên điện thoại */
+            text-align: center;
+        }
+    }
+
+    .btn-cancel,
+    .btn-closes {
+        background-color: #f1f5f9;
+        color: #475569;
+
+        &:hover {
+            background-color: #e2e8f0;
+        }
+    }
+
+    .btn-submit {
+        background-color: $color-primary;
+        color: white;
+
+        &:hover {
+            background-color: #9ca5b8;
+        }
+    }
+
+    .btn-danger {
+        background-color: #fee2e2;
+        color: $color-cancelled;
+        margin-left: auto;
+
+        &:hover {
+            background-color: #fca5a5;
+        }
+
+        /* Mobile: Xóa margin-left để nút hủy suất chiếu đồng bộ tỷ lệ hàng dọc */
+        @media screen and (max-width: 480px) {
+            margin-left: 0;
+            margin-bottom: 8px;
+            /* Tách biệt với cụm nút bên dưới */
+        }
+    }
+}
+
+.cinema-selector-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+
+    .cinema-item {
+        padding: 12px 16px;
+        border: 1px solid $color-border;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+
+        &:hover {
+            border-color: $color-primary;
+            background-color: #eff6ff;
+        }
+
+        &--active {
+            border-color: $color-primary;
+            background-color: #eff6ff;
+            box-shadow: 0 0 0 1px $color-primary;
+        }
+    }
+}
