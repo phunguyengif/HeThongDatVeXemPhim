@@ -3,7 +3,6 @@ import cinemaApi from '../../api/cinemaApi';
 import MenuBar from '../../components/admin_components/MenuBar';
 import { useNavigate } from 'react-router-dom';
 
-
 const CinemaManagement = () => {
 
     const navigate = useNavigate();
@@ -16,7 +15,7 @@ const CinemaManagement = () => {
     const [searchName, setSearchName] = useState('');
     const [searchCity, setSearchCity] = useState('');
 
-    // Form State 
+    // Form State (API yêu cầu đúng 3 trường này)
     const [formData, setFormData] = useState({
         name: '',
         address: '',
@@ -27,26 +26,6 @@ const CinemaManagement = () => {
         navigate("/RoomManagement", {
             state: { cinemaId, cinemaName }
         });
-    };
-
-    const handleToggleStatus = async (cinema) => {
-        const confirmMsg = cinema.isActive
-            ? `Bạn có chắc chắn muốn TẠM NGƯNG hoạt động rạp "${cinema.name}"?`
-            : `Bạn muốn MỞ LẠI hoạt động cho rạp "${cinema.name}"?`;
-
-        if (!window.confirm(confirmMsg)) return;
-
-        try {
-            const updatedData = {
-                ...cinema,
-                isActive: !cinema.isActive
-            };
-            await cinemaApi.update(cinema.id, updatedData);
-
-            fetchCinemas();
-        } catch (error) {
-            alert("Lỗi: Không thể cập nhật trạng thái rạp!");
-        }
     };
 
     // Tải danh sách cụm rạp từ API
@@ -61,8 +40,6 @@ const CinemaManagement = () => {
             } else {
                 data = await cinemaApi.getAll();
             }
-            console.log(data)
-            
 
             // Xử lý cả trường hợp response dạng PageImpl hoặc List
             setCinemas(data.content || data);
@@ -84,7 +61,6 @@ const CinemaManagement = () => {
     const handleClearSearch = () => {
         setSearchName('');
         setSearchCity('');
-        // setTimeout để đảm bảo state đã rỗng
         setTimeout(() => fetchCinemas(false), 0);
     };
 
@@ -102,19 +78,41 @@ const CinemaManagement = () => {
             setIsModalOpen(false);
             fetchCinemas();
         } catch (error) {
-            alert(error.message || "Thao tác thất bại, vui lòng kiểm tra lại dữ liệu!");
+            // Xử lý hiển thị lỗi Validation chi tiết từ Backend
+            if (error.validationErrors) {
+                alert("Dữ liệu nhập vào chưa hợp lệ: \n" + JSON.stringify(error.validationErrors, null, 2));
+            } else {
+                alert(error.message || "Thao tác thất bại, vui lòng kiểm tra lại dữ liệu!");
+            }
         }
     };
 
-    // Xóa cụm rạp
+    // Dừng hoạt động cụm rạp (Tương đương Delete mềm theo API)
     const handleDeleteCinema = async (id, name) => {
-        if (!window.confirm(`Bạn có chắc chắn muốn xóa cụm rạp "${name}" ? Thao tác này có thể ảnh hưởng đến các phòng chiếu thuộc rạp!`)) return;
+        if (!window.confirm(`Bạn có chắc chắn muốn NGỪNG HOẠT ĐỘNG cụm rạp "${name}" ?`)) return;
         try {
             await cinemaApi.delete(id);
-            alert("Đã xóa cụm rạp thành công!");
+            alert("Đã ngừng hoạt động rạp thành công!");
             fetchCinemas();
         } catch (error) {
-            alert("Không thể xóa cụm rạp này!");
+            alert("Không thể ngừng hoạt động cụm rạp này!");
+        }
+    };
+
+    // Mở lại hoạt động rạp (Dùng lệnh Update với dữ liệu cũ để kích hoạt lại)
+    const handleRestoreCinema = async (cinema) => {
+        if (!window.confirm(`Bạn muốn MỞ LẠI hoạt động cho rạp "${cinema.name}"?`)) return;
+        try {
+            const restorePayload = {
+                name: cinema.name,
+                address: cinema.address,
+                city: cinema.city
+            };
+            await cinemaApi.update(cinema.id, restorePayload);
+            alert("Đã mở lại hoạt động rạp thành công!");
+            fetchCinemas();
+        } catch (error) {
+            alert("Không thể mở lại rạp!");
         }
     };
 
@@ -150,6 +148,7 @@ const CinemaManagement = () => {
                             Thêm cụm rạp mới
                         </button>
                     </div>
+
                     <div className="cinema-manager__filters">
                         <input
                             type="text"
@@ -175,17 +174,15 @@ const CinemaManagement = () => {
                         </button>
                     </div>
 
-                    {/* LƯỚI DANH SÁCH CÁC CỤM RẠP (GRID CARD LAYOUT) */}
+                    {/* LƯỚI DANH SÁCH CÁC CỤM RẠP */}
                     <div className="cinema-manager__grid">
                         {cinemas.map((cinema) => (
                             <div key={cinema.id} className="cinema-card">
-                                <div
-                                    className={`cinema-card__badge cinema-card__badge--${cinema.isActive ? 'active' : 'inactive'}`}
-                                    onClick={() => handleToggleStatus(cinema)}
-                                    title="Click để thay đổi trạng thái"
-                                >
+                                {/* Huy hiệu trạng thái (Không còn cho phép click để tránh lỗi đồng bộ) */}
+                                <div className={`cinema-card__badge cinema-card__badge--${cinema.isActive ? 'active' : 'inactive'}`}>
                                     {cinema.isActive ? '🟢 ĐANG HOẠT ĐỘNG' : '🔴 TẠM NGƯNG'}
                                 </div>
+
                                 <div className="cinema-card__icon">🏢</div>
                                 <div className="cinema-card__body">
                                     <h3 className="cinema-card__name">{cinema.name}</h3>
@@ -194,7 +191,6 @@ const CinemaManagement = () => {
                                 </div>
 
                                 <div className="cinema-card__footer">
-                                    {/* Nút chức năng cốt lõi: Liên kết sang quản lý phòng chiếu của rạp này */}
                                     <button
                                         className="cinema-card__btn-action cinema-card__btn-action--manage"
                                         onClick={() => handleSelectCinema(cinema.id, cinema.name)}
@@ -203,19 +199,28 @@ const CinemaManagement = () => {
                                     </button>
 
                                     <div className="cinema-card__admin-controls">
-                                        <button
-                                            className="cinema-card__btn-link"
-                                            onClick={() => openEditModal(cinema)}
-                                        >
+                                        <button className="cinema-card__btn-link" onClick={() => openEditModal(cinema)}>
                                             Sửa
                                         </button>
                                         <span className="cinema-card__divider">|</span>
-                                        <button
-                                            className="cinema-card__btn-link cinema-card__btn-link--danger"
-                                            onClick={() => handleDeleteCinema(cinema.id, cinema.name)}
-                                        >
-                                            Xóa
-                                        </button>
+
+                                        {/* Đổi UI hiển thị nút tương ứng với trạng thái của rạp (giống trang Phim) */}
+                                        {cinema.isActive ? (
+                                            <button
+                                                className="cinema-card__btn-link cinema-card__btn-link--danger"
+                                                onClick={() => handleDeleteCinema(cinema.id, cinema.name)}
+                                            >
+                                                Ngừng hoạt động
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="cinema-card__btn-link cinema-card__btn-link--active"
+                                                onClick={() => handleRestoreCinema(cinema)}
+                                                style={{ color: '#28a745', fontWeight: 'bold' }}
+                                            >
+                                                Mở lại
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -233,7 +238,7 @@ const CinemaManagement = () => {
 
                                 <form onSubmit={handleSubmit} className="cinema-modal__form">
                                     <div className="cinema-modal__field">
-                                        <label>Tên cụm rạp hệ thống</label>
+                                        <label>Tên cụm rạp hệ thống (*)</label>
                                         <input
                                             type="text"
                                             required
@@ -244,7 +249,7 @@ const CinemaManagement = () => {
                                     </div>
 
                                     <div className="cinema-modal__field">
-                                        <label>Địa chỉ chi tiết</label>
+                                        <label>Địa chỉ chi tiết (*)</label>
                                         <input
                                             type="text"
                                             required
@@ -254,7 +259,7 @@ const CinemaManagement = () => {
                                         />
                                     </div>
                                     <div className="cinema-modal__field">
-                                        <label>Thành phố</label>
+                                        <label>Thành phố (*)</label>
                                         <input
                                             type="text"
                                             required

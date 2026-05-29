@@ -1,11 +1,11 @@
 import axiosClient from './axiosClient';
 const roomApi = {
-    // 1. Lấy danh sách tất cả phòng chiếu (Hỗ trợ phân trang quản lý)
+    //  Lấy danh sách tất cả phòng chiếu 
     getAll: (params) => {
         return axiosClient.get('/catalog/rooms', { params });
     },
 
-    // 3. Tạo phòng chiếu mới đính kèm sơ đồ ghế (RoomRequestDTO)
+    // Tạo phòng chiếu mới đính kèm sơ đồ ghế 
     createRoom: (roomData) => {
         return axiosClient.post('/catalog/rooms', roomData);
     },
@@ -17,22 +17,22 @@ const roomApi = {
         return axiosClient.get(`/catalog/rooms/${roomId}`);
     },
 
-    // 22. Cập nhật phòng [@PutMapping] 
+    //  Cập nhật phòng 
     updateRoom: (roomId, roomData) => {
         return axiosClient.put(`/catalog/rooms/${roomId}`, roomData);
     },
 
-    // 23. Xóa mềm phòng [@DeleteMapping] 
+    // Xóa mềm phòng
     deleteRoom: (roomId) => {
         return axiosClient.delete(`/catalog/rooms/${roomId}`);
     },
 
-    // 24. Lấy danh sách ghế theo phòng [@GetMapping] 
+    // Lấy danh sách ghế theo phòng 
     getSeatsByRoomId: (roomId) => {
         return axiosClient.get(`/catalog/rooms/internal/${roomId}/seats`);
     },
 
-    // 25. Cập nhật loại ghế hàng loạt [@PutMapping] 
+    //  Cập nhật loại ghế hàng loạt 
     updateSeatsTypeBulk: (seatIds, seatType) => {
         return axiosClient.put('/catalog/seats/type', { seatIds, seatType });
     }

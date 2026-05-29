@@ -1,7 +1,7 @@
 import axiosClient from './axiosClient';
 
 const movieApi = {
-    // API Lấy danh sách phim (Hỗ trợ phân trang/tìm kiếm) 
+    // API Lấy danh sách phim 
     getAll: (params) => {
         return axiosClient.get('/catalog/movies', { params });
     },
@@ -33,7 +33,17 @@ const movieApi = {
         return axiosClient.delete(`/catalog/movies/${id}`);
     },
 
-    // API đặc biệt: Upload file media (Dùng multipart/form-data)
+    // Cập nhật riêng Poster
+    updatePoster: (id, poseUrl) => {
+        return axiosClient.patch(`/catalog/movies/${id}/poster`, null, { params: { poseUrl } });
+    },
+
+    // Cập nhật riêng Trailer
+    updateTrailer: (id, trailerUrl) => {
+        return axiosClient.patch(`/catalog/movies/${id}/trailer`, null, { params: { trailerUrl } });
+    },
+
+    //  Upload file media 
     uploadFile: (formData) => {
         return axiosClient.post('/catalog/files/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }

@@ -8,8 +8,8 @@ import MenuBar from '../../components/admin_components/MenuBar';
 const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
     // --- Quản lý bộ lọc ---
     const [currentCinema, setCurrentCinema] = useState({ id: cinemaId || null, name: cinemaName || '' });
+    // Khởi tạo ngày mặc định chuẩn format yyyy-MM-dd
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-    console.log(selectedDate)
 
     // --- Dữ liệu hệ thống hiển thị ---
     const [rooms, setRooms] = useState([]);
@@ -22,17 +22,17 @@ const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-    // --- Form và dữ liệu được chọn ---
+    // --- Form và dữ liệu được chọn (Khớp với ShowtimeRequestDTO) ---
     const [selectedShowtime, setSelectedShowtime] = useState(null);
     const [formData, setFormData] = useState({
         movieId: '',
         roomId: '',
-        startDate: '', // yyyy-MM-dd 
-        startTimeStr: '', // HH:mm
+        startDate: '', // Cấu trúc tạm để build ra startTime
+        startTimeStr: '', // Cấu trúc tạm để build ra startTime
         basePrice: '90000'
     });
 
-    // Tải danh sách rạp ban đầu nếu Admin 
+    // Tải danh sách rạp ban đầu nếu Admin chưa chọn rạp
     useEffect(() => {
         if (!currentCinema.id) {
             cinemaApi.getAll().then(res => setCinemaList(res.content || res));
@@ -45,7 +45,7 @@ const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
         try {
             const [roomsData, moviesData] = await Promise.all([
                 roomApi.getRoomsByCinemaId(currentCinema.id),
-                movieApi.getAll({ pageSize: 100 })
+                movieApi.getAll({ pageSize: 100 }) // API 1: MovieResponse trả về content
             ]);
             setRooms(roomsData);
             setMovies(moviesData.content || moviesData);
@@ -54,16 +54,16 @@ const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
         }
     }, [currentCinema.id]);
 
-    // Tải lịch chiếu theo Cụm rạp và Ngày được chọn 
+    // API 26: Lấy lịch chiếu theo Cụm rạp và Ngày được chọn 
     const fetchTimelineSchedule = useCallback(async () => {
         if (!currentCinema.id || !selectedDate) return;
         try {
+            // API trả thẳng về mảng List<ShowtimeResponseDTO>
             const data = await showtimeApi.getByCinemaAndDate(currentCinema.id, selectedDate);
             setShowtimes(data);
         } catch (error) {
             console.error("Lỗi tải lịch chiếu:", error);
         }
-        console.log(currentCinema.id);
     }, [currentCinema.id, selectedDate]);
 
     useEffect(() => {
@@ -73,18 +73,18 @@ const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
         }
     }, [currentCinema.id, selectedDate, loadConfigurationData, fetchTimelineSchedule]);
 
-    // lấy giờ hiển thị (Format: yyyy-MM-dd HH:mm:ss -> HH:mm) 
+    // Format giờ hiển thị (Từ Backend: yyyy-MM-dd HH:mm:ss -> FE: HH:mm) 
     const formatTimeOnly = (dateTimeStr) => {
         if (!dateTimeStr) return '';
         const parts = dateTimeStr.split(' ');
         return parts[1] ? parts[1].substring(0, 5) : dateTimeStr.substring(11, 16);
     };
 
-    //  Xử lý Submit lưu Suất chiếu mới
+    // API 23: Xử lý Submit lưu Suất chiếu mới
     const handleCreateShowtime = async (e) => {
         e.preventDefault();
 
-        // Ghép chuỗi chuẩn hóa LocalDateTime format: yyyy-MM-dd HH:mm:ss 
+        // Ghép chuỗi chuẩn hóa LocalDateTime format: yyyy-MM-dd HH:mm:ss theo đúng yêu cầu Backend
         const formattedStartTime = `${formData.startDate} ${formData.startTimeStr}:00`;
 
         const showtimeRequestDTO = {
@@ -97,15 +97,14 @@ const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
         try {
             await showtimeApi.create(showtimeRequestDTO);
             alert("Sắp xếp lịch suất chiếu mới thành công!");
-            console.log(showtimeRequestDTO);
             setIsCreateModalOpen(false);
-            fetchTimelineSchedule();
+            fetchTimelineSchedule(); // Load lại mảng phim sau khi tạo
         } catch (error) {
-            alert(error.message || "Trùng lịch chiếu hoặc phòng đang bảo trì!");
+            alert(error.message || error.validationErrors || "Trùng lịch chiếu hoặc phòng đang bảo trì!");
         }
     };
 
-    // Hủy suất chiếu (Chuyển sang CANCELLED)
+    // API 24: Hủy suất chiếu (Chuyển sang CANCELLED)
     const handleCancelShowtime = async (showtimeId) => {
         if (!window.confirm("Bạn có chắc chắn muốn HỦY suất chiếu này? Thao tác này sẽ thông báo hoàn tiền tới khách hàng.")) return;
         try {
@@ -118,11 +117,11 @@ const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
         }
     };
 
-    // API số 28: Xem chi tiết suất chiếu
+    // API 25: Xem chi tiết suất chiếu
     const handleOpenDetailModal = async (id) => {
         try {
             const data = await showtimeApi.getById(id);
-            setSelectedShowtime(data);
+            setSelectedShowtime(data); // Trả về DTO
             setIsDetailModalOpen(true);
         } catch (error) {
             alert("Không thể tải thông tin suất chiếu!");
@@ -133,7 +132,7 @@ const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
         setFormData({
             movieId: movies[0]?.id || '',
             roomId: roomId || rooms[0]?.id || '',
-            startDate: selectedDate,
+            startDate: selectedDate, // Khớp với form ngày hiển tại
             startTimeStr: '19:00',
             basePrice: '90000'
         });
@@ -195,9 +194,7 @@ const ShowtimeManagement = ({ cinemaId, cinemaName }) => {
                                                     <div className="showtime-block__movie-title">{st.movieTitle}</div>
                                                     <i className="fi fi-sr-wallet"></i>
                                                     <div className="showtime-block__meta">
-
-                                                        <span>
-                                                            {st.basePrice / 1000}k</span>
+                                                        <span>{st.basePrice / 1000}k</span>
                                                         <span className="badge-status">{st.status}</span>
                                                     </div>
                                                 </div>

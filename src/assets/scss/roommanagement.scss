@@ -6,6 +6,7 @@ $color-bg: #f8fafc;
 
 $seat-single: #94a3b8; // Xám thường
 $seat-vip: #ef4444; // Đỏ VIP
+$seat-maintenance: #d0c28c;
 $seat-double: #ec4899; // Hồng đôi
 $seat-empty: #f1f5f9; // Trắng xám lối đi
 
@@ -454,7 +455,7 @@ $seat-empty: #f1f5f9; // Trắng xám lối đi
             text-align: left;
             transition: all 0.15s;
 
-            &--single {
+            &--normal {
                 background-color: #f1f5f9;
                 color: #334155;
                 border-color: $color-border;
@@ -473,13 +474,17 @@ $seat-empty: #f1f5f9; // Trắng xám lối đi
                 }
             }
 
-            &--double {
+            &--couple {
                 background-color: #fce7f3;
                 color: #c026d3;
 
                 &:hover {
                     background-color: #fbcfe8;
                 }
+            }
+            &--maintenance{
+                background-color:#bcb5a9 ;
+                color:#c27843
             }
 
             &--empty {
@@ -537,7 +542,7 @@ $seat-empty: #f1f5f9; // Trắng xám lối đi
         transition: all 0.1s ease;
         border-bottom: 4px solid rgba(0, 0, 0, 0.2);
 
-        &--single {
+        &--normal {
             background-color: $seat-single;
         }
 
@@ -545,9 +550,12 @@ $seat-empty: #f1f5f9; // Trắng xám lối đi
             background-color: $seat-vip;
         }
 
-        &--double {
+        &--couple {
             background-color: $seat-double;
             width: 100%;
+        }
+        &--maintenance{
+            background-color: $seat-maintenance;
         }
 
         &--empty {
@@ -590,7 +598,7 @@ $seat-empty: #f1f5f9; // Trắng xám lối đi
                 border-radius: 3px;
                 display: inline-block;
 
-                &--single {
+                &--normal {
                     background-color: $seat-single;
                 }
 
@@ -598,12 +606,16 @@ $seat-empty: #f1f5f9; // Trắng xám lối đi
                     background-color: $seat-vip;
                 }
 
-                &--double {
+                &--couple {
                     background-color: $seat-double;
                 }
 
                 &--empty {
                     border: 1px dashed #64748b;
+                }
+                &--maintenance{
+                    background-color: $seat-maintenance;
+                
                 }
 
                 &--selected {

@@ -1,0 +1,395 @@
+$bg-dark: #090514;
+$bg-card: #120c24;
+$border: #251e3b;
+$text-main: #ffffff;
+$color-vip: #ef4444;
+$color-couple: #ec4899;
+$color-chosen: #eab308;
+$color-sold: #475569;
+
+.booking-layout {
+    min-height: 100vh;
+    background-color: $bg-dark;
+    color: $text-main;
+    padding-bottom: 100px;
+
+    &__header {
+        padding: 20px 40px;
+        background-color: $bg-card;
+        border-bottom: 1px solid $border;
+        text-align: center;
+
+        .booking-steps-indicator span {
+            margin: 0 15px;
+            font-weight: bold;
+            color: gray;
+
+            &.active {
+                color: $color-chosen;
+                border-bottom: 2px solid $color-chosen;
+            }
+        }
+    }
+
+    &__body {
+        padding: 40px 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+}
+
+// ---- SEAT STEP ----
+.seat-step-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+
+    .screen-curve-indicator {
+        width: 80%;
+        text-align: center;
+        font-weight: bold;
+        padding-top: 10px;
+        border-top: 3px solid white;
+        border-radius: 50% / 20px 20px 0 0;
+    }
+
+    .seats-matrix-area {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow-x: auto;
+
+        .seat-row-line {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .cinema-seat-cell {
+            width: 35px;
+            height: 35px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            cursor: pointer;
+            user-select: none;
+
+            &.type-normal {
+                border: 1px solid white;
+            }
+
+            &.type-vip {
+                border: 1px solid $color-vip;
+                color: $color-vip;
+            }
+
+            &.type-couple {
+                width: 78px;
+                border: 1px solid $color-couple;
+                color: $color-couple;
+            }
+
+            &.type-empty {
+                border: none;
+                pointer-events: none;
+            }
+
+            &.chosen {
+                background-color: $color-chosen !important;
+                color: black !important;
+            }
+
+            &.status-locked,
+            &.status-paid,
+            &.status-maintenance {
+                background-color: $color-sold;
+                border-color: $color-sold;
+                color: transparent;
+                cursor: not-allowed;
+            }
+        }
+    }
+
+    .seats-legend-bar {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        .box {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .normal {
+            border: 1px solid white;
+        }
+
+        .vip {
+            border: 1px solid $color-vip;
+        }
+
+        .couple {
+            border: 1px solid $color-couple;
+        }
+
+        .chosen {
+            background-color: $color-chosen;
+        }
+
+        .sold {
+            background-color: $color-sold;
+        }
+    }
+}
+
+// ---- SNACK STEP ----
+.snack-step-container {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 10px;
+    color: #ffffff; 
+
+    .step-title {
+        text-align: center;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .snack-list-wrapper {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        width: 100%;
+    }
+
+    .snack-horizontal-card {
+        display: flex;
+        align-items: stretch; 
+        gap: 15px;
+        box-sizing: border-box;
+
+        img {
+            width: 160px;
+            height: 100% ;
+            border-radius: 4px;
+            object-fit: contain; 
+            padding: 5px;
+            flex-shrink: 0;
+        }
+
+        .snack-action {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+            min-width: 0;
+            height: 100%;
+        }
+
+        .snack-details {
+            min-width: 0;
+            margin-bottom: 12px;
+
+            h4 {
+                margin: 0 0 5px 0;
+                font-size: 18px;
+                text-transform: uppercase; 
+                font-weight: bold;
+            }
+
+            .category-tag {
+                display: block;
+                font-size: 14px;
+                line-height: 1.4;
+                color: #e2e8f0; 
+                margin-bottom: 8px;
+            }
+
+            .price-text {
+                color: #ffffff;
+                font-weight: bold;
+                font-size: 16px;
+                margin: 0;
+            }
+        }
+
+        .snack-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #94a3b8; 
+            border-radius: 4px;
+            width: 110px; 
+            padding: 2px 4px;
+
+            button {
+                background: none;
+                border: none;
+                color: #0f172a;
+                padding: 4px 12px;
+                cursor: pointer;
+                font-size: 20px;
+                font-weight: 400;
+                
+                &:hover {
+                    color: #000000;
+                    font-weight: bold;
+                }
+            }
+
+            span {
+                color: #0f172a; 
+                font-weight: 500;
+                font-size: 16px;
+            }
+        }
+    }
+}
+
+
+@media (max-width: 1200px) {
+    .snack-step-container .snack-list-wrapper {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .snack-step-container .snack-list-wrapper {
+        grid-template-columns: minmax(0, 1fr); 
+        
+        .snack-horizontal-card img {
+            width: 100px;
+            height: 120px;
+        }
+    }
+}
+
+// ---- BOTTOM BAR ----
+.bottom-checkout-bar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    padding: 15px 5%;
+
+    background: $bg-card;
+    border-top: 1px solid $border;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 10;
+
+    .summary-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .info-block {
+            display: flex;
+            gap: 5px
+        }
+
+
+        .label {
+            font-size: 12px;
+            color: gray;
+        }
+
+        .highlight {
+            color: white;
+        }
+        .highlight-title{
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .price {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+    }
+
+    .action-btn {
+        background: #84cc16;
+        border: none;
+        padding: 15px 30px;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+
+        &:hover {
+            background: #a3e635;
+        }
+    }
+
+    .action-bottombar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: auto;
+        padding: 15px 5%;
+        box-sizing: border-box;
+
+
+        .timer-box {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: rgb(199, 216, 44);
+            padding: 10px;
+            border-radius: 5px;
+            color: rgb(0, 0, 0);
+        }
+
+        .payment-box {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .payment-info {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+        }
+
+        &__next {
+            background: rgb(199, 216, 44);
+            border: none;
+            padding: 10px 10px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    }
+
+    .action-button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+
+    .action-btn-back {
+        background: #383a34;
+        border: none;
+        padding: 10px 10px;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+}

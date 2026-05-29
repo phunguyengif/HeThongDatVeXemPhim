@@ -22,7 +22,10 @@ import './assets/scss/roommanagement.scss'
 import './assets/scss/cinemamanagement.scss'
 import './assets/scss/snackmanagement.scss'
 import './assets/scss/showtimemanagement.scss'
-
+import './assets/scss/bookingpage.scss'
+import './assets/scss/checkoutpage.scss'
+import './assets/scss/cinemapage.scss'
+import './assets/scss/searchpage.scss'
 
 
 

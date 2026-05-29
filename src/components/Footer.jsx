@@ -1,5 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const Footer = () => {
+    const navigate = useNavigate();
+    const hanldeDatVe = () => {
+        navigate('/DatVe');
+    };
     return (
         <footer className="footer">
             <div className="footer__container">
@@ -7,20 +13,20 @@ const Footer = () => {
                 {/* Cột 1: Logo và Mạng xã hội */}
                 <div className="footer__brand-col">
                     <div className="footer__logo">
-                        <p>CINESTAR</p>
+                        <p>CINEMA</p>
                     </div>
                     <p className="footer__slogan">BE HAPPY, BE A STAR</p>
 
                     <div className="top-actions-button">
-                        <button className="btn btn-dat-ve">ĐẶT VÉ</button>
-                        <button className="btn btn-dat-bap">ĐẶT BẮP NƯỚC</button>
+                        <button className="btn btn-dat-ve" onClick={hanldeDatVe}>ĐẶT VÉ</button>
+                        {/* <button className="btn btn-dat-bap">ĐẶT BẮP NƯỚC</button> */}
                     </div>
 
                     <div className="footer__socials">
                         <a href="#" className="footer__social-icon"><i className="fab fa-facebook-f"></i></a>
                         <a href="#" className="footer__social-icon"><i className="fab fa-youtube"></i></a>
                         <a href="#" className="footer__social-icon"><i className="fab fa-tiktok"></i></a>
-                        <a href="#" className="footer__social-icon"><i className="fab fa-line"></i></a> {/* Hoặc icon Zalo tự chế */}
+                        <a href="#" className="footer__social-icon"><i className="fab fa-line"></i></a>
                     </div>
 
                     <div className="footer__language">

@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchAllCinemas } from '../redux/slices/cinemaApiSlice.jsx';
 import { fetchMovieById } from '../redux/slices/movieApiSlice.jsx';
-// 👉 Import đúng hàm mới ở đây
 import { fetchShowtimesByMovie } from '../redux/slices/showtimeApiSlice.jsx';
+import { initBooking } from '../redux/slices/bookingSlice.jsx';
+import { useNavigate } from 'react-router-dom';
+import PreviewPopup from './PopupTrailer.jsx';
 
-// =========================================================
-// HÀM TIỆN ÍCH: TỰ ĐỘNG TẠO DANH SÁCH 7 NGÀY TỚI
-// =========================================================
+
 const generateNext7Days = () => {
     const days = [];
     const dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
@@ -32,6 +32,7 @@ const generateNext7Days = () => {
 
 const MovieDetail = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { id: movieId } = useParams();
 
     // 1. TẠO DANH SÁCH NGÀY & STATE
@@ -46,9 +47,19 @@ const MovieDetail = () => {
     const { list: showtimes, isLoading: loadingShowtimes } = useSelector((state) => state.showtimeStore);
     const { currentMovie, isLoading: loadingMovies } = useSelector((state) => state.movieStore);
 
-    // =======================================================
+    //Popup Trailer
+    const [previewPosterUrl, setPreviewPosterUrl] = useState(null);
+    const [previewTrailerUrl, setPreviewTrailerUrl] = useState(null);
+    const videoRef = useRef(null);
+
+    const closeTrailerPreview = () => {
+        if (videoRef.current) {
+            videoRef.current.pause();
+        }
+        setPreviewTrailerUrl(null);
+    };
+
     // GỌI API LẤY DỮ LIỆU CƠ BẢN (PHIM VÀ RẠP)
-    // =======================================================
     useEffect(() => {
         if (movieId) {
             dispatch(fetchMovieById(movieId));
@@ -62,14 +73,9 @@ const MovieDetail = () => {
     }, [dispatch, cinemas.length]);
 
 
-    // =======================================================
-    // LOGIC 3 BƯỚC XỬ LÝ LỊCH CHIẾU
-    // =======================================================
-
-    // 👉 BƯỚC 1: Lọc rạp theo khu vực được chọn (Thêm ?. để chống sập)
+    // BƯỚC XỬ LÝ LỊCH CHIẾU
     const cinemasInCity = cinemas.filter(c => c?.city?.toUpperCase() === address.toUpperCase());
 
-    // 👉 BƯỚC 2: Chỉ cần có movieId và ngày là gọi API lấy toàn bộ suất chiếu của phim đó
     useEffect(() => {
         if (movieId && selectedDayObj.fullDate) {
             dispatch(fetchShowtimesByMovie({
@@ -79,31 +85,24 @@ const MovieDetail = () => {
         }
     }, [dispatch, movieId, selectedDayObj.fullDate]);
 
-    // 👉 BƯỚC 3: Đồng bộ dữ liệu để render
     const renderedTheaters = cinemasInCity.map(cinema => {
-        // A. Lấy suất chiếu thuộc về rạp hiện tại (không cần check movieId nữa vì API trả về đã đúng phim rồi)
+
         const movieShowtimes = showtimes.filter(st => st.cinemaId === cinema.id);
 
-        // B. Sắp xếp giờ chiếu từ sớm đến muộn
         const sortedShowtimes = [...movieShowtimes].sort((a, b) =>
             new Date(a.startTime) - new Date(b.startTime)
         );
 
-        // C. Rút trích giờ từ "2026-05-23 19:30:00" -> "19:30"
         const slots = sortedShowtimes.map(st => st.startTime.substring(11, 16));
 
         return {
             ...cinema,
             screenType: "Standard",
-            // Loại bỏ các giờ trùng lặp
-            slots: [...new Set(slots)]
+            slots: [...new Set(slots)],
+            originalShowtimes: movieShowtimes
         };
     }).filter(theater => theater.slots.length > 0);
-    // Loại bỏ khỏi màn hình các rạp hôm đó không có suất chiếu
 
-    // =======================================================
-
-    // Lọc danh sách thành phố duy nhất cho Dropdown (Thêm ?. để chống sập)
     const uniqueCitiesArray = [...new Set(cinemas.map(item => item?.city?.toUpperCase()))].filter(Boolean);
 
     const handleSelect = (value) => {
@@ -114,8 +113,7 @@ const MovieDetail = () => {
         setActivePopup(activePopup === index ? null : index);
     };
 
-    // KIỂM TRA TRẠNG THÁI LOADING
-    // Nếu đang tải phim hoặc (chưa có currentMovie nhưng có movieId đang load) thì hiện "Đang tải"
+
     if (loadingMovies || (!currentMovie && movieId)) {
         if (loadingMovies) return <div style={{ color: 'white', textAlign: 'center', marginTop: '50px' }}>Đang tải thông tin phim...</div>;
     }
@@ -179,14 +177,31 @@ const MovieDetail = () => {
                             </span>
                         </div>
                         <div className="movie-detail__actions">
-                            <a href={currentMovie.trailerUrl} className="btn-trailer" target="_blank" rel="noreferrer">
+                            <button
+                                className="btn-trailer"
+                                onClick={() => setPreviewTrailerUrl(currentMovie.trailerUrl)}>
                                 <div className="icon-play">▶</div>
                                 <span className="text-underline">Xem Trailer</span>
-                            </a>
+                            </button>
                         </div>
+
+                        <PreviewPopup
+                            type="poster"
+                            url={previewPosterUrl}
+                            onClose={() => setPreviewPosterUrl(null)}
+                        />
+
+                        {/* Popup Trailer */}
+                        <PreviewPopup
+                            type="video"
+                            url={previewTrailerUrl}
+                            onClose={closeTrailerPreview}
+                            videoRef={videoRef}
+                        />
                     </div>
                 </div>
             </div>
+
 
             <div className="movie-schedule">
                 <h1 className="movie-schedule__date-title">LỊCH CHIẾU</h1>
@@ -218,7 +233,7 @@ const MovieDetail = () => {
                                     <div className="movie-schedule__dropdown">
                                         {uniqueCitiesArray.map(item => (
                                             <div key={item} className="movie-schedule__item" onClick={(e) => {
-                                                e.stopPropagation(); 
+                                                e.stopPropagation();
                                                 handleSelect(item);
                                             }}>
                                                 {item}
@@ -247,7 +262,26 @@ const MovieDetail = () => {
                                         <div className="screen-type-tag">{theater.screenType}</div>
                                         <div className="slots-grid">
                                             {theater.slots.map((slot, index) => (
-                                                <button key={index} className="slot-btn">
+                                                <button
+                                                    key={index}
+                                                    className="slot-btn"
+                                                    onClick={() => {
+                                                        const showtimeId = theater.originalShowtimes.find(st => st.startTime.includes(slot)).id;
+                                                        dispatch(initBooking({
+                                                            showtimeId: showtimeId,
+                                                            cinemaName: theater.name,
+                                                            cinemaAddress: theater.address,
+                                                            movieTitle: currentMovie.title,
+                                                            movieAgeRestriction: currentMovie.ageRestriction,
+                                                            movieId: currentMovie.id,
+                                                            movieDuration: currentMovie.duration,
+                                                            showtimeDate: selectedDayObj.displayDate,
+                                                            showtimeTime: slot
+                                                        }));
+                
+
+                                                        navigate(`/BookingPage?showtimeId=${showtimeId}&movieId=${currentMovie.id}`);
+                                                    }}>
                                                     {slot}
                                                 </button>
                                             ))}

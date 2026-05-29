@@ -7,18 +7,20 @@
 
 
 /* Header Container chính */
-.cinestar-container{
+.cinestar-container {
     width: 100%;
-    position: sticky; 
+    position: sticky;
     top: 0;
     z-index: 1000;
     background-color: #e0e0e7;
 }
+
 .cinestar-header {
     width: 100%;
     max-width: 1300px;
     margin: 0 auto;
-    padding: 0px;;
+    padding: 0px;
+    ;
     z-index: 1000;
     border-radius: 8px;
 }
@@ -36,7 +38,7 @@
 .header-top {
     /* Đây là chìa khóa của dấu gạch ngang */
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 15px 0;
+    padding: 0px;
 }
 
 .top-actions-button {
@@ -44,7 +46,7 @@
     align-items: center;
     gap: 20px;
     width: 100%;
-    max-width: 350px;
+    max-width: 200px;
 }
 
 .top-actions-active {
@@ -106,7 +108,8 @@
     background-position: left bottom;
     color: #fff;
 }
-.search-btn{
+
+.search-btn {
     border: none;
     background: transparent;
 }
@@ -124,12 +127,27 @@
     border: none;
     outline: none;
     padding: 5px;
-    width: 150px;
+    width: 250px;
+}
+
+.user-action {
+    display: flex;
+    max-width: 120px;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1; 
+    min-width: 0;
 }
 
 /* --- PHẦN DƯỚI --- */
 .header-bottom {
-    padding: 12px 0;
+    padding: 0px;
 }
 
 .header-bottom a {
@@ -149,4 +167,41 @@
 .header-bottom i {
     margin-right: 5px;
     font-size: 16px;
+}
+.dropdown-trigger-wrapper {
+    position: relative;
+    display: inline-block;
+    height: 100%;
+}
+
+.header-cinema-dropdown {
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    min-width: 100%;
+    background-color: #ffffff; /* Nền tối hợp với Dark Mode của rạp */
+    border: 1px solid #251e3b;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    z-index: 1000; /* Luôn đè lên banner và slider phim bên dưới */
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+}
+
+.header-cinema-dropdown .dropdown-item {
+    padding: 12px 20px;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+
+.header-cinema-dropdown .dropdown-item:hover {
+    background-color: rgba(253, 224, 71, 0.1); 
+    color: #fde047;
+    border-left: 3px solid #fde047;
 }

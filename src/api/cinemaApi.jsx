@@ -1,7 +1,7 @@
 import axiosClient from './axiosClient'; 
 
 const cinemaApi = {
-    // 1. Lấy danh sách tất cả các cụm rạp (Hỗ trợ phân trang: page, size)
+    // 1. Lấy danh sách tất cả các cụm rạp 
     getAll: (params) => {
         return axiosClient.get('/catalog/cinemas', { params });
     },
@@ -25,7 +25,7 @@ const cinemaApi = {
     delete: (id) => {
         return axiosClient.delete(`/catalog/cinemas/${id}`);
     },
-    // Tìm kiếm rạp
+    //6. Tìm kiếm rạp
     search: (params) => {
         return axiosClient.get('/catalog/cinemas/search', { params });
     }

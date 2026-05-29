@@ -2,11 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import roomApi from '../../api/roomApi';
 import cinemaApi from '../../api/cinemaApi';
-import { data } from 'react-router-dom';
 import MenuBar from '../../components/admin_components/MenuBar';
 
 const RoomManagement = () => {
-
     const navigate = useNavigate();
     const location = useLocation();
     const { cinemaId, cinemaName } = location.state || {};
@@ -28,6 +26,7 @@ const RoomManagement = () => {
     const [gridConfig, setGridConfig] = useState({ rows: 10, cols: 14 });
     const [seatsMatrix, setSeatsMatrix] = useState([]);
     const [savedRoomSeats, setSavedRoomSeats] = useState([]);
+    const [originalRoomSeats, setOriginalRoomSeats] = useState([]);
     const [selectedSeatIds, setSelectedSeatIds] = useState([]);
 
     const [isRightMouseDown, setIsRightMouseDown] = useState(false);
@@ -49,7 +48,6 @@ const RoomManagement = () => {
                 }
             };
             fetchCinemaList();
-
         }
     }, [currentCinema.id]);
 
@@ -80,7 +78,6 @@ const RoomManagement = () => {
         setIsCinemaSelectorOpen(false);
     };
 
-    // --- Khởi tạo ma trận phòng chiếu ---
     const generateInitialMatrix = useCallback(() => {
         const matrix = [];
         for (let r = 0; r < gridConfig.rows; r++) {
@@ -92,7 +89,7 @@ const RoomManagement = () => {
                     columnIndex: c,
                     rowLabel: rowLabels[r] || `R${r + 1}`,
                     columnLabel: seatCountInRow < 10 ? `0${seatCountInRow}` : `${seatCountInRow}`,
-                    seatType: 'SINGLE'
+                    seatType: 'NORMAL'
                 });
                 seatCountInRow++;
             }
@@ -107,19 +104,33 @@ const RoomManagement = () => {
     }, [gridConfig.rows, gridConfig.cols, isCanvasOpen, isEditMode, generateInitialMatrix]);
 
 
-    // ========================================================
-    // [API 24] MỞ CHẾ ĐỘ CẬP NHẬT PHÒNG CŨ VÀ LẤY SƠ ĐỒ GHẾ
-    // ========================================================
+    // CẬP NHẬT (LẤY CHI TIẾT PHÒNG)
     const handleOpenEditRoom = async (room) => {
         try {
-            setRoomName(room.name);
-            setGridConfig({ rows: room.rowCount, cols: room.columnCount });
-            setSelectedRoomId(room.id);
+            const roomDetail = await roomApi.getRoomById(room.id);
+
+            setRoomName(roomDetail.name);
+            setGridConfig({ rows: roomDetail.rowCount, cols: roomDetail.columnCount });
+            setSelectedRoomId(roomDetail.id);
             setIsEditMode(true);
 
-            // Gọi API Lấy chi tiết ghế theo thứ tự gridRow, gridColumn
-            const seatsData = await roomApi.getSeatsByRoomId(room.id);
-            setSavedRoomSeats(seatsData);
+            // Chuyển đổi mảng 2 chiều (seatMatrix) thành mảng 1 chiều để render Grid
+            const flatSeats = [];
+            roomDetail.seatMatrix.forEach((rowArr, rIdx) => {
+                rowArr.forEach((seat, cIdx) => {
+                    flatSeats.push({
+                        id: seat.id,
+                        gridRow: rIdx + 1,
+                        gridColumn: cIdx + 1,
+                        rowName: seat.row,
+                        seatLabel: seat.col,
+                        seatType: seat.type
+                    });
+                });
+            });
+
+            setSavedRoomSeats(flatSeats);
+            setOriginalRoomSeats(flatSeats);
             setSelectedSeatIds([]);
             setIsCanvasOpen(true);
         } catch (error) {
@@ -134,19 +145,16 @@ const RoomManagement = () => {
         setIsCanvasOpen(true);
     };
 
-
-    // ========================================================
-    // XỬ LÝ TƯƠNG TÁC CHUỘT (DÙNG CHUNG CẢ 2 CHẾ ĐỘ)
-    // ========================================================
+    // XỬ LÝ TƯƠNG TÁC CHUỘT
     const handleSeatLeftClick = (rowIndex, colIndex) => {
         if (selectedSeatIds.length > 0) {
             setSelectedSeatIds([]);
             return;
         }
-        // Ở chế độ cập nhật, cấm click trái lẻ để tránh lỗi đồng bộ, chỉ cho phép bôi đen hàng loạt
         if (isEditMode) return;
 
-        const types = ['SINGLE', 'VIP', 'DOUBLE', 'EMPTY'];
+        // 👉 ĐÃ CẬP NHẬT: Thêm MAINTENANCE và đổi tên theo API
+        const types = ['NORMAL', 'VIP', 'COUPLE', 'MAINTENANCE', 'EMPTY'];
         const currentMatrix = [...seatsMatrix];
         const currentType = currentMatrix[rowIndex][colIndex].seatType;
 
@@ -176,18 +184,14 @@ const RoomManagement = () => {
         setSelectedSeatIds(prev => prev.includes(identifier) ? prev : [...prev, identifier]);
     };
 
-    // ========================================================
-    // [API 25] ÁP DỤNG CẬP NHẬT CẤU HÌNH GHẾ HÀNG LOẠT
-    // ========================================================
+    // CẬP NHẬT LOẠI GHẾ HÀNG LOẠT
     const applyBulkType = async (newType) => {
         if (selectedSeatIds.length === 0) return alert("Vui lòng GIỮ CHUỘT PHẢI và kéo quét chọn các ô trên lưới trước!");
 
         if (isEditMode) {
-            // [API 25] Gửi cập nhật thẳng lên DB nếu đang ở chế độ Sửa
             try {
                 await roomApi.updateSeatsTypeBulk(selectedSeatIds, newType);
 
-                // Đồng bộ cập nhật giao diện local
                 const updatedSavedSeats = savedRoomSeats.map(seat => {
                     if (selectedSeatIds.includes(seat.id)) {
                         return { ...seat, seatType: newType };
@@ -201,7 +205,6 @@ const RoomManagement = () => {
                 alert("Lỗi khi cập nhật loại ghế!");
             }
         } else {
-            // Chế độ Tạo mới (Chỉ xử lý ở biến Local)
             const currentMatrix = [...seatsMatrix];
             selectedSeatIds.forEach(key => {
                 const [r, c] = key.split('-').map(Number);
@@ -217,47 +220,63 @@ const RoomManagement = () => {
         }
     };
 
-    // ========================================================
-    // [API 19 & 22] LƯU PHÒNG HOẶC CẬP NHẬT TÊN PHÒNG
-    // ========================================================
+    // LƯU PHÒNG HOẶC CẬP NHẬT PHÒNG
     const handleSaveRoom = async () => {
         if (!roomName.trim()) return alert("Vui lòng nhập tên phòng chiếu!");
 
         if (isEditMode) {
-            // [API 22] Gửi request cập nhật phòng
-            // Mặc dù Backend chỉ cập nhật tên phòng, DTO vẫn yêu cầu trường seats không được rỗng (@NotEmpty)
-            // Chuyển đổi dữ liệu ghế từ API 24 (SeatResponseDTO) về dạng request ban đầu (SeatCreateRequest)
-            const formattedSeats = savedRoomSeats.map(seat => ({
-                rowIndex: seat.gridRow - 1,       // CSS Grid bắt đầu từ 1, map về DB bắt đầu từ 0
-                columnIndex: seat.gridColumn - 1, // CSS Grid bắt đầu từ 1, map về DB bắt đầu từ 0
-                rowLabel: seat.rowName,
-                columnLabel: seat.seatType === 'EMPTY' ? '' : seat.seatLabel,
-                seatType: seat.seatType
-            }));
+
+            const changedSeats = savedRoomSeats.filter(seat => {
+                const origSeat = originalRoomSeats.find(o => o.id === seat.id);
+                return origSeat && origSeat.seatType !== seat.seatType;
+            });
+
+            if (changedSeats.length > 0) {
+                // Gom nhóm ID ghế theo loại mới (VD: { VIP: ['id1', 'id2'], EMPTY: ['id3'] })
+                const groupedByType = changedSeats.reduce((acc, seat) => {
+                    if (!acc[seat.seatType]) acc[seat.seatType] = [];
+                    acc[seat.seatType].push(seat.id);
+                    return acc;
+                }, {});
+                const updateSeatPromises = Object.keys(groupedByType).map(type => {
+                    const ids = groupedByType[type];
+                    // Sử dụng hàm update Bulk bạn đã có sẵn
+                    return roomApi.updateSeatsTypeBulk(ids, type);
+                });
+
+                // Gọi TẤT CẢ API đổi loại ghế cùng một lúc để tăng tốc độ
+                await Promise.all(updateSeatPromises);
+            }
+
+            const dummySeats = [{
+                rowIndex: 0,
+                columnIndex: 0,
+                rowLabel: "A",
+                columnLabel: "",
+                seatType: "EMPTY"
+            }];
 
             const roomRequestDTO = {
                 cinemaId: currentCinema.id,
                 roomName: roomName.trim(),
                 totalRows: gridConfig.rows,
                 totalColumns: gridConfig.cols,
-                seats: formattedSeats // Đính kèm mảng ghế cũ để pass qua Validate của Backend
+                seats: dummySeats
             };
-
             try {
                 await roomApi.updateRoom(selectedRoomId, roomRequestDTO);
-                alert("Cập nhật cấu hình phòng thành công!");
+
+                alert("Đã lưu lại Tên phòng và Sơ đồ ghế thành công!");
                 setIsCanvasOpen(false);
                 fetchRoomsByCinema();
             } catch (error) {
                 if (error.validationErrors) {
-                    console.error("Lỗi Validate từ Backend:", error.validationErrors);
-                    alert("Dữ liệu phòng không hợp lệ, vui lòng kiểm tra lại cấu hình!");
+                    alert("Dữ liệu cấu hình phòng không hợp lệ: " + JSON.stringify(error.validationErrors));
                 } else {
-                    alert("Lỗi khi cập nhật phòng chiếu!");
+                    alert("Đã xảy ra lỗi trong quá trình lưu dữ liệu!");
                 }
             }
         } else {
-            // [API 19] Gửi request Tạo phòng mới tinh
             const formattedSeats = [];
             seatsMatrix.forEach((row) => {
                 row.forEach((seat) => {
@@ -278,6 +297,8 @@ const RoomManagement = () => {
                 totalColumns: gridConfig.cols,
                 seats: formattedSeats
             };
+            console.log(roomRequestDTO);
+
 
             try {
                 const data = await roomApi.createRoom(roomRequestDTO);
@@ -294,9 +315,7 @@ const RoomManagement = () => {
         }
     };
 
-    // ========================================================
-    // [API 23] XÓA MỀM PHÒNG CHIẾU
-    // ========================================================
+    // XÓA MỀM VÀ PHỤC HỒI PHÒNG CHIẾU
     const handleDeleteRoom = async (roomId) => {
         if (!window.confirm("Bạn có chắc chắn muốn đóng phòng chiếu này không?")) return;
         try {
@@ -308,17 +327,50 @@ const RoomManagement = () => {
         }
     };
 
+    const handleRestoreRoom = async (roomId) => {
+        if (!window.confirm("Bạn muốn MỞ LẠI phòng chiếu này?")) return;
+        try {
+            const roomDetail = await roomApi.getRoomById(roomId);
+            const formattedSeats = [];
+
+            roomDetail.seatMatrix.forEach((rowArr, rIdx) => {
+                rowArr.forEach((seat, cIdx) => {
+                    formattedSeats.push({
+                        rowIndex: rIdx,
+                        columnIndex: cIdx,
+                        rowLabel: seat.row,
+                        columnLabel: seat.type === 'EMPTY' ? '' : seat.col,
+                        seatType: seat.type
+                    });
+                });
+            });
+
+            const payload = {
+                cinemaId: currentCinema.id,
+                roomName: roomDetail.name,
+                totalRows: roomDetail.rowCount,
+                totalColumns: roomDetail.columnCount,
+                seats: formattedSeats
+            };
+
+            await roomApi.updateRoom(roomId, payload);
+            alert("Đã mở lại phòng chiếu thành công!");
+            fetchRoomsByCinema();
+        } catch (error) {
+            alert("Không thể mở lại phòng!");
+        }
+    };
+
     return (
         <div>
             <MenuBar />
             <article>
                 <div className="room-manager">
                     {!isCanvasOpen ? (
-                        /* TRẠNG THÁI 1: DANH SÁCH PHÒNG CHIẾU */
                         <>
                             <div className="room-manager__navigation">
-                                {handleBackToCinemas  ? (
-                                    <button className="room-manager__btn-back" onClick={handleBackToCinemas }>
+                                {handleBackToCinemas ? (
+                                    <button className="room-manager__btn-back" onClick={handleBackToCinemas}>
                                         Quay lại
                                     </button>
                                 ) : (
@@ -379,13 +431,31 @@ const RoomManagement = () => {
                                                             Sửa sơ đồ
                                                         </button>
                                                         <span style={{ color: '#cbd5e1', margin: '0 8px' }}>|</span>
-                                                        <button
-                                                            className="room-manager__action-btn room-manager__action-btn--delete"
-                                                            onClick={() => handleDeleteRoom(room.id)}
-                                                            disabled={!room.isActive}
-                                                        >
-                                                            Đóng phòng
-                                                        </button>
+
+                                                        {/* {room.isActive ? (
+                                                            <button
+                                                                className="room-manager__action-btn room-manager__action-btn--delete"
+                                                                onClick={() => handleDeleteRoom(room.id)}
+                                                            >
+                                                                Đóng phòng
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                className="room-manager__action-btn"
+                                                                style={{ color: '#28a745', fontWeight: 'bold' }}
+                                                                onClick={() => handleRestoreRoom(room.id)}
+                                                            >
+                                                                Mở lại phòng
+                                                            </button>
+                                                        )} */}
+                                                        {
+                                                            <button
+                                                                className="room-manager__action-btn room-manager__action-btn--delete"
+                                                                onClick={() => handleDeleteRoom(room.id)}
+                                                            >
+                                                                Đóng phòng
+                                                            </button>
+                                                        }
                                                     </td>
                                                 </tr>
                                             ))
@@ -395,7 +465,6 @@ const RoomManagement = () => {
                             </div>
                         </>
                     ) : (
-                        /* TRẠNG THÁI 2: STUDIO CANVAS THIẾT KẾ VÀ CẬP NHẬT */
                         <div className="seat-studio">
                             <div className="seat-studio__top-bar">
                                 <button className="seat-studio__btn-back" onClick={() => setIsCanvasOpen(false)}>✕ Quay lại</button>
@@ -409,7 +478,6 @@ const RoomManagement = () => {
                             </div>
 
                             <div className="seat-studio__layout">
-                                {/* THANH ĐIỀU CHỈNH THÔNG SỐ BÊN TRÁI */}
                                 <div className="seat-studio__sidebar">
                                     <div className="seat-studio__card">
                                         <h4>1. Thông tin cơ bản</h4>
@@ -449,19 +517,18 @@ const RoomManagement = () => {
                                             <b>Mẹo:</b> {isEditMode ? "Nhấn giữ CHUỘT PHẢI quét các ghế để đổi loại trực tiếp trên hệ thống." : "Nhấn giữ CHUỘT PHẢI kéo rê chuột bôi đen các ô trên lưới."}
                                         </p>
                                         <div className="seat-studio__bulk-actions">
-                                            <button type="button" onClick={() => applyBulkType('SINGLE')} className="bulk-btn bulk-btn--single">Ghế thường (SINGLE)</button>
+                                            <button type="button" onClick={() => applyBulkType('NORMAL')} className="bulk-btn bulk-btn--normal">Ghế thường (NORMAL)</button>
                                             <button type="button" onClick={() => applyBulkType('VIP')} className="bulk-btn bulk-btn--vip">Ghế VIP (VIP)</button>
-                                            <button type="button" onClick={() => applyBulkType('DOUBLE')} className="bulk-btn bulk-btn--double">Ghế đôi (DOUBLE)</button>
+                                            <button type="button" onClick={() => applyBulkType('COUPLE')} className="bulk-btn bulk-btn--couple">Ghế đôi (COUPLE)</button>
+                                            <button type="button" onClick={() => applyBulkType('MAINTENANCE')} className="bulk-btn bulk-btn--maintenance">Bảo trì (MNT)</button>
                                             {!isEditMode && <button type="button" onClick={() => applyBulkType('EMPTY')} className="bulk-btn bulk-btn--empty">Lối đi chung (EMPTY)</button>}
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* KHU VỰC TRỰC QUAN MÀN HÌNH VÀ GRID GHẾ BÊN PHẢI */}
                                 <div className="seat-studio__canvas">
                                     <div className="seat-studio__screen">MÀN HÌNH CHIẾU PHIM (SCREEN)</div>
 
-                                    {/* CHẾ ĐỘ SỬA: Vẽ sơ đồ động dựa vào gridRow, gridColumn */}
                                     {isEditMode ? (
                                         <div
                                             className="seat-studio__grid"
@@ -490,7 +557,6 @@ const RoomManagement = () => {
                                             })}
                                         </div>
                                     ) : (
-                                        /* CHẾ ĐỘ TẠO MỚI: Vẽ ma trận */
                                         <div
                                             className="seat-studio__grid"
                                             style={{
@@ -520,20 +586,18 @@ const RoomManagement = () => {
                                         </div>
                                     )}
 
-                                    {/* CHÚ THÍCH CÁC MÀU GHẾ */}
                                     <div className="seat-studio__legend">
-                                        <span className="legend-item"><span className="dot dot--single"></span> Ghế Thường</span>
+                                        <span className="legend-item"><span className="dot dot--normal"></span> Ghế Thường</span>
                                         <span className="legend-item"><span className="dot dot--vip"></span> Ghế VIP</span>
-                                        <span className="legend-item"><span className="dot dot--double"></span> Ghế Đôi (Couples)</span>
+                                        <span className="legend-item"><span className="dot dot--couple"></span> Ghế Đôi (Couples)</span>
+                                        <span className="legend-item"><span className="dot dot--maintenance"></span> Bảo trì</span>
                                         {!isEditMode && <span className="legend-item"><span className="dot dot--empty"></span> Lối đi/Ô trống</span>}
-                                        <span className="legend-item"><span className="dot dot--selected"></span> Đang bôi đen</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* POPUP MENU CHỌN CỤM RẠP CHỦ ĐỘNG */}
                     {isCinemaSelectorOpen && (
                         <div className="cinema-select-modal">
                             <div className="cinema-select-modal__backdrop" onClick={() => currentCinema.id && setIsCinemaSelectorOpen(false)}></div>

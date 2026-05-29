@@ -6,7 +6,7 @@ export const fetchShowtimesByMovie = createAsyncThunk(
     async ({ movieId, date }, thunkAPI) => {
         try {
             const response = await showtimeApi.getByMovieAndDate(movieId, date);
-            return response; // Trả về mảng Array<ShowtimeResponseDTO>
+            return response; 
         } catch (error) {
             return thunkAPI.rejectWithValue(error);
         }
@@ -17,7 +17,7 @@ export const fetchShowtimesByMovie = createAsyncThunk(
 const showtimeApiSlice = createSlice({
     name: 'showtime',
     initialState: {
-        list: [], // Chứa danh sách suất chiếu lấy về
+        list: [], 
         isLoading: false,
         error: null,
     },
@@ -26,11 +26,11 @@ const showtimeApiSlice = createSlice({
         builder
             .addCase(fetchShowtimesByMovie.pending, (state) => {
                 state.isLoading = true;
-                state.list = []; // Xóa lịch chiếu cũ khi đổi ngày/đổi phim
+                state.list = []; 
             })
             .addCase(fetchShowtimesByMovie.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.list = action.payload || []; // Lưu danh sách suất chiếu
+                state.list = action.payload || []; 
             })
             .addCase(fetchShowtimesByMovie.rejected, (state, action) => {
                 state.isLoading = false;

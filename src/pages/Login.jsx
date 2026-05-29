@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
-// Nếu bạn chưa nhúng FontAwesome CDN ở file index.html tổng, 
-// bạn có thể cài npm i @fortawesome/react-fontawesome hoặc giữ nguyên link CDN ngoài head.
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, registerUser } from '../redux/slices/AuthApiSlice.jsx';
 
 const Login = () => {
-    // 1. State quản lý dữ liệu Form Login
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const { isLoading } = useSelector((state) => state.authStore);
+
     const [loginData, setLoginData] = useState({
-        email: '',
+        userName: '',
         password: ''
     });
 
-    // 2. State quản lý dữ liệu Form Signup
     const [signupData, setSignupData] = useState({
-        name: '',
+        userName: '',
         email: '',
         password: ''
     });
 
-    // Hàm xử lý khi người dùng thay đổi dữ liệu ô Input
     const handleLoginChange = (e) => {
         setLoginData({ ...loginData, [e.target.name]: e.target.value });
     };
@@ -25,24 +28,81 @@ const Login = () => {
         setSignupData({ ...signupData, [e.target.name]: e.target.value });
     };
 
-    // Hàm xử lý khi Submit Form Login
-    const handleLoginSubmit = (e) => {
-        e.preventDefault(); // Ngăn load lại trang
-        console.log('Dữ liệu Login gửi lên API:', loginData);
-        // Bạn viết logic gọi API đăng nhập ở đây (axios, fetch...)
+    // Hàm Validate đăng ký
+    const validateSignup = () => {
+        const { userName, email, password } = signupData;
+
+        if (userName.trim().length < 7) {
+            alert("Tên đăng nhập phải có ít nhất 4 ký tự!");
+            return false;
+        }
+        if (/\s/.test(userName)) {
+            alert("Tên đăng nhập không được chứa khoảng trắng!");
+            return false;
+        }
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            alert("Vui lòng nhập đúng định dạng email (ví dụ: example@gmail.com)!");
+            return false;
+        }
+
+        if (password.length < 8) {
+            alert("Mật khẩu phải có ít nhất 6 ký tự!");
+            return false;
+        }
+
+        if (!/[A-Z]/.test(password)) {
+            alert("Mật khẩu phải chứa ít nhất 1 chữ cái viết hoa!");
+            return false;
+        }
+
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            alert("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (ví dụ: @, #, $, %...)!");
+            return false;
+        }
+
+        return true;
     };
 
-    // Hàm xử lý khi Submit Form Signup
-    const handleSignupSubmit = (e) => {
-        e.preventDefault(); // Ngăn load lại trang
-        console.log('Dữ liệu Signup gửi lên API:', signupData);
-        // Bạn viết logic gọi API đăng ký ở đây
+    // Xử lý Submit Form Login
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await dispatch(loginUser(loginData)).unwrap();
+
+
+
+            if (response.role === 'ADMIN') {
+                navigate('/Admin');
+            } else {
+                navigate('/TrangChu');
+            }
+        } catch (error) {
+            alert(error || 'Tên đăng nhập hoặc mật khẩu không chính xác.');
+        }
+    };
+
+    // Xử lý Submit Form Signup
+    const handleSignupSubmit = async (e) => {
+        e.preventDefault();
+        if (!validateSignup()) return;
+
+        try {
+            const response = await dispatch(registerUser(signupData)).unwrap();
+            alert(response); // Hiện "Đăng ký thành công!"
+
+            setSignupData({ userName: '', email: '', password: '' });
+            document.getElementById('flip').checked = false;
+
+        } catch (error) {
+            alert(error || 'Lỗi: Tên đăng nhập hoặc email đã tồn tại!');
+        }
     };
 
     return (
         <div className="main-content">
             <div className="login-container">
-                {/* Thẻ Checkbox dùng để kích hoạt hiệu ứng lật (Flip) CSS */}
                 <input type="checkbox" id="flip" />
 
                 <div className="cover">
@@ -71,30 +131,17 @@ const Login = () => {
                             <form onSubmit={handleLoginSubmit}>
                                 <div className="input-boxes">
                                     <div className="input-box">
-                                        <i className="fas fa-envelope"></i>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            placeholder="Enter your email"
-                                            value={loginData.email}
-                                            onChange={handleLoginChange}
-                                            required
-                                        />
+                                        <i className="fas fa-user"></i>
+                                        <input type="text" name="userName" placeholder="Enter your username" value={loginData.userName} onChange={handleLoginChange} required />
                                     </div>
                                     <div className="input-box">
                                         <i className="fas fa-lock"></i>
-                                        <input
-                                            type="password"
-                                            name="password"
-                                            placeholder="Enter your password"
-                                            value={loginData.password}
-                                            onChange={handleLoginChange}
-                                            required
-                                        />
+                                        <input type="password" name="password" placeholder="Enter your password" value={loginData.password} onChange={handleLoginChange} required />
                                     </div>
                                     <div className="text"><a href="#">Forgot password?</a></div>
                                     <div className="button input-box">
-                                        <input type="submit" value="Submit" />
+                                        {/* isLoading lấy từ Redux */}
+                                        <input type="submit" value={isLoading ? "Loading..." : "Submit"} disabled={isLoading} />
                                     </div>
                                     <div className="text sign-up-text">
                                         Don't have an account? <label htmlFor="flip">Signup now</label>
@@ -110,39 +157,18 @@ const Login = () => {
                                 <div className="input-boxes">
                                     <div className="input-box">
                                         <i className="fas fa-user"></i>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            placeholder="Enter your name"
-                                            value={signupData.name}
-                                            onChange={handleSignupChange}
-                                            required
-                                        />
+                                        <input type="text" name="userName" placeholder="Enter your username" value={signupData.userName} onChange={handleSignupChange} required />
                                     </div>
                                     <div className="input-box">
                                         <i className="fas fa-envelope"></i>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            placeholder="Enter your email"
-                                            value={signupData.email}
-                                            onChange={handleSignupChange}
-                                            required
-                                        />
+                                        <input type="email" name="email" placeholder="Enter your email" value={signupData.email} onChange={handleSignupChange} required />
                                     </div>
                                     <div className="input-box">
                                         <i className="fas fa-lock"></i>
-                                        <input
-                                            type="password"
-                                            name="password"
-                                            placeholder="Enter your password"
-                                            value={signupData.password}
-                                            onChange={handleSignupChange}
-                                            required
-                                        />
+                                        <input type="password" name="password" placeholder="Enter your password" value={signupData.password} onChange={handleSignupChange} required />
                                     </div>
                                     <div className="button input-box">
-                                        <input type="submit" value="Submit" />
+                                        <input type="submit" value={isLoading ? "Loading..." : "Submit"} disabled={isLoading} />
                                     </div>
                                     <div className="text sign-up-text">
                                         Already have an account? <label htmlFor="flip">Login now</label>
