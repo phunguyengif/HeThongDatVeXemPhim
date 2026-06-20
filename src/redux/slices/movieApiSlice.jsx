@@ -20,7 +20,6 @@ export const fetchMoviesByStatus = createAsyncThunk(
     'movie/fetchMoviesByStatus',
     async ({ status, ...params }, thunkAPI) => {
         try {
-            // Tách riêng status đưa vào path, các thông số còn lại (pageNumber, pageSize) đưa vào params
             const response = await movieApi.getMoviesByStatus(status, params);
             return response;
         } catch (error) {
@@ -144,5 +143,5 @@ const movieApiSlice = createSlice({
     }
 });
 
-export const { clearMovieError } = movieApiSlice.actions;
+export const { clearMovieError} = movieApiSlice.actions;
 export default movieApiSlice.reducer;

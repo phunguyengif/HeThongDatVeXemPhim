@@ -1,0 +1,152 @@
+$bg-white-core: #ffffff;
+$bg-card: #120c24;
+$border-color: #251e3b;
+$yellow-accent: #facc15;
+$text-light: #000000;
+$text-muted: #94a3b8;
+
+.all-movies-page {
+    background-color: $bg-white-core;
+    min-height: 100vh;
+    color: $text-light;
+    padding-bottom: 60px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    /* THANH TAB ĐIỀU HƯỚNG */
+    &__tabs {
+        display: flex;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        padding: 20px 0px;
+
+        .tab-item {
+            background: none;
+            border: none;
+            color: $text-light;
+            font-size: 16px;
+            font-weight: 800;
+            padding: 20px 45px;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-bottom: 4px solid transparent;
+            transition: all 0.2s ease-in-out;
+
+            &:hover {
+                color: $yellow-accent;
+            }
+
+            &.active {
+                color: $yellow-accent;
+                border-bottom: 4px solid $yellow-accent;
+            }
+        }
+        .h1{
+            font-weight: 20px;
+            font-size: 20px;
+        }
+    }
+
+    &__content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 50px 20px;
+    }
+
+    /* ĐỊNH DẠNG LƯỚI Ô PHIM */
+    .movies-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 35px;
+    }
+
+    /* CARD TỪNG BỘ PHIM */
+    .movie-search-card {
+        background-color: transparent;
+        cursor: pointer;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            transform: translateY(-6px);
+
+            .poster-wrapper img {
+                filter: brightness(1.15);
+            }
+
+            .movie-details .movie-title {
+                color: $yellow-accent;
+            }
+        }
+
+        .poster-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: filter 0.3s ease;
+            }
+
+            /* Nhãn gắn góc poster phim */
+            .badge-type {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                color: #ffffff;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 800;
+                letter-spacing: 0.5px;
+
+                &.now {
+                    background-color: #ef4444;
+                }
+
+                // Đỏ cho phim đang chiếu
+                &.soon {
+                    background-color: #3b82f6;
+                }
+
+                // Xanh dương cho phim sắp chiếu
+            }
+        }
+
+        .movie-details {
+            padding: 15px 5px 0 5px;
+
+            .movie-title {
+                margin: 0 0 8px 0;
+                font-size: 17px;
+                font-weight: 800;
+                line-height: 1.3;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                transition: color 0.2s ease;
+            }
+
+            .movie-meta {
+                margin: 0 0 4px 0;
+                font-size: 13px;
+                color: $text-muted;
+                font-weight: 500;
+            }
+        }
+    }
+
+    .status-text {
+        text-align: center;
+        color: $text-muted;
+        font-size: 16px;
+        padding: 50px;
+        background-color: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        border: 1px dashed $border-color;
+    }
+}

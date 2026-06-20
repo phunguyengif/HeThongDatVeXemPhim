@@ -35,6 +35,10 @@ const roomApi = {
     //  Cập nhật loại ghế hàng loạt 
     updateSeatsTypeBulk: (seatIds, seatType) => {
         return axiosClient.put('/catalog/seats/type', { seatIds, seatType });
+    },
+    // Mở lại phòng chiếu 
+    reopenRoom: (roomId) => {
+        return axiosClient.patch(`/catalog/rooms/${roomId}`);
     }
 };
 

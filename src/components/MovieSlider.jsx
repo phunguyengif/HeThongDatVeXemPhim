@@ -1,13 +1,17 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MovieCard from './MovieCard';
 
 const MovieSlider = ({ title, movies }) => {
+    const navigate = useNavigate();
+
     const sliderRef = useRef(null);
     const [activePage, setActivePage] = useState(0);
 
     if (!movies || movies.length === 0) return null;
 
     const totalPages = Math.ceil(movies.length / 4);
+    const StatusPage = title == "PHIM ĐANG CHIẾU" ? "ACTIVE" : "INACTIVE";
 
     const handleDotClick = (pageIndex) => {
         if (sliderRef.current) {
@@ -74,7 +78,11 @@ const MovieSlider = ({ title, movies }) => {
                 </div>
 
                 {/* Nút xem thêm */}
-                <button className="movie-slider__btn-more">XEM THÊM</button>
+                <button
+                    className="movie-slider__btn-more"
+                    onClick={() => navigate(`/allmoviespage?status=${StatusPage}`)}>
+                    XEM THÊM
+                </button>
             </div>
         </div>
     );

@@ -103,12 +103,7 @@ const CinemaManagement = () => {
     const handleRestoreCinema = async (cinema) => {
         if (!window.confirm(`Bạn muốn MỞ LẠI hoạt động cho rạp "${cinema.name}"?`)) return;
         try {
-            const restorePayload = {
-                name: cinema.name,
-                address: cinema.address,
-                city: cinema.city
-            };
-            await cinemaApi.update(cinema.id, restorePayload);
+            await cinemaApi.reopen(cinema.id);
             alert("Đã mở lại hoạt động rạp thành công!");
             fetchCinemas();
         } catch (error) {

@@ -130,7 +130,7 @@ const Header = () => {
                                 )}
                             </div>
 
-                            <a href="#"><i className="cal-icon">📅</i> Lịch chiếu</a>
+                            {/* <a href="#"><i className="cal-icon">📅</i> Lịch chiếu</a> */}
                         </div>
                         <div className="menu-right">
                             <a href="#">Khuyến mãi</a>

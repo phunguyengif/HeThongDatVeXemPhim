@@ -1,11 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchAllCinemas } from '../redux/slices/cinemaApiSlice';
+import { fetchAllMovies } from '../redux/slices/movieApiSlice';
 
 const Footer = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const token = localStorage.getItem('accessToken');
+
+    const { list: cinemaList } = useSelector((state) => state.cinemaStore);
+    const { movieList } = useSelector((state) => state.movieStore);
+
+    useEffect(() => {
+        if (cinemaList.length === 0) {
+            dispatch(fetchAllCinemas({ pageNumber: 0, pageSize: 100, isActive: true }));
+        }
+        if (movieList.length === 0) {
+            dispatch(fetchAllMovies({ pageNumber: 0, pageSize: 100 }));
+        }
+    }, [dispatch, cinemaList.length, movieList.length]);
+    const phimDangChieu = movieList.filter(movie => movie.status === 'ACTIVE');
+    const phimSapChieu = movieList.filter(movie => movie.status === 'INACTIVE');
+
     const hanldeDatVe = () => {
         navigate('/DatVe');
     };
+    const hanldeLogin = () => {
+        if (!token || token.trim() === "" || token === "null") {
+            navigate('/Login');
+        } else {
+            alert("Bạn đã đăng nhập rồi!")
+        }
+    };
+
     return (
         <footer className="footer">
             <div className="footer__container">
@@ -42,18 +70,31 @@ const Footer = () => {
                     <div className="footer__section">
                         <h3 className="footer__title">TÀI KHOẢN</h3>
                         <ul className="footer__list">
-                            <li><a href="#">Đăng nhập</a></li>
-                            <li><a href="#">Đăng ký</a></li>
-                            <li><a href="#">Membership</a></li>
+                            <li
+                                onClick={hanldeLogin}>
+                                <a href="#">Đăng nhập</a>
+                            </li>
+                            <li
+                                onClick={hanldeLogin}>
+                                <a href="#">Đăng ký</a>
+                            </li>
+                            {/* <li><a href="#">Membership</a></li> */}
                         </ul>
                     </div>
 
                     <div className="footer__section">
                         <h3 className="footer__title">XEM PHIM</h3>
                         <ul className="footer__list">
-                            <li><a href="#">Phim đang chiếu</a></li>
-                            <li><a href="#">Phim sắp chiếu</a></li>
-                            <li><a href="#">Suất chiếu đặc biệt</a></li>
+                            <li onClick={() => navigate('/allmoviespage?status=ACTIVE')}
+                            >
+                                <a href="#">Phim đang chiếu</a>
+                            </li>
+
+                            <li
+                                onClick={() => navigate('/allmoviespage?status=INACTIVE')}>
+                                <a href="#">Phim sắp chiếu</a>
+                            </li>
+                            {/* <li><a href="#">Suất chiếu đặc biệt</a></li> */}
                         </ul>
                     </div>
                 </div>
@@ -100,12 +141,23 @@ const Footer = () => {
                         <h3 className="footer__title">HỆ THỐNG RẠP</h3>
                         <ul className="footer__list">
                             <li><a href="#" className="footer__link--highlight">Tất cả hệ thống rạp</a></li>
-                            <li><a href="#">Cinestar Quốc Thanh (TP.HCM)</a></li>
-                            <li><a href="#">Cinestar Parkcity Hà Nội</a></li>
-                            <li><a href="#">Cinestar Sinh Viên (TP.HCM)</a></li>
-                            <li><a href="#">Cinestar Huế (TP. Huế)</a></li>
-                            <li><a href="#">Cinestar Đà Lạt (Lâm Đồng)</a></li>
-                            <li><a href="#">Cinestar Lâm Đồng (Đức Trọng)</a></li>
+                            {cinemaList.length > 0 ? (
+                                cinemaList.map((cinema) => (
+                                    <li key={cinema.id}>
+                                        <a
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate(`/cinemas/${cinema.id}`);
+                                            }}
+                                        >
+                                            {cinema.name}
+                                        </a>
+                                    </li>
+                                ))
+                            ) : (
+                                <li><span style={{ color: '#94a3b8' }}>Đang tải danh sách rạp...</span></li>
+                            )}
                         </ul>
                     </div>
                 </div>

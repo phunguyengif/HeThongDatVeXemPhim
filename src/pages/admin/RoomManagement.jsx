@@ -345,15 +345,8 @@ const RoomManagement = () => {
                 });
             });
 
-            const payload = {
-                cinemaId: currentCinema.id,
-                roomName: roomDetail.name,
-                totalRows: roomDetail.rowCount,
-                totalColumns: roomDetail.columnCount,
-                seats: formattedSeats
-            };
 
-            await roomApi.updateRoom(roomId, payload);
+            await roomApi.reopenRoom(roomId);
             alert("Đã mở lại phòng chiếu thành công!");
             fetchRoomsByCinema();
         } catch (error) {
@@ -432,7 +425,7 @@ const RoomManagement = () => {
                                                         </button>
                                                         <span style={{ color: '#cbd5e1', margin: '0 8px' }}>|</span>
 
-                                                        {/* {room.isActive ? (
+                                                        {room.isActive ? (
                                                             <button
                                                                 className="room-manager__action-btn room-manager__action-btn--delete"
                                                                 onClick={() => handleDeleteRoom(room.id)}
@@ -447,15 +440,8 @@ const RoomManagement = () => {
                                                             >
                                                                 Mở lại phòng
                                                             </button>
-                                                        )} */}
-                                                        {
-                                                            <button
-                                                                className="room-manager__action-btn room-manager__action-btn--delete"
-                                                                onClick={() => handleDeleteRoom(room.id)}
-                                                            >
-                                                                Đóng phòng
-                                                            </button>
-                                                        }
+                                                        )}
+                                                        
                                                     </td>
                                                 </tr>
                                             ))

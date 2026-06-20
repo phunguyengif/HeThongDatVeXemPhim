@@ -25,6 +25,7 @@ import SnackManagement from '../pages/admin/SnackManagement.jsx';
 import CheckoutPage from '../pages/admin/CheckoutPage.jsx';
 import CinemaPage from '../pages/CinemaPage.jsx';
 import SearchPage from '../pages/SearchPage.jsx';
+import AllMoviesPage from '../pages/AllMoviesPage.jsx';
 
 
 const UserLayout = () => {
@@ -68,6 +69,7 @@ export const appRouter = createBrowserRouter([
             { path: '/checkout', element: <CheckoutPage /> },
             { path: '/cinemas/:id', element: <CinemaPage /> },
             { path: '/search', element: <SearchPage /> },
+            { path: '/allmoviespage', element: <AllMoviesPage /> },
 
             { path: "/unauthorized", element: <div style={{ textAlign: 'center', marginTop: '50px' }}><h2>Bạn không có quyền truy cập trang này!</h2></div> }
         ]

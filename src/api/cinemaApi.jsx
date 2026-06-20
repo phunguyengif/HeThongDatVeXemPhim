@@ -28,6 +28,10 @@ const cinemaApi = {
     //6. Tìm kiếm rạp
     search: (params) => {
         return axiosClient.get('/catalog/cinemas/search', { params });
+    },
+    // 7. reopen rạp
+    reopen: (id) => {
+        return axiosClient.patch(`/catalog/cinemas/${id}`);
     }
 };
 

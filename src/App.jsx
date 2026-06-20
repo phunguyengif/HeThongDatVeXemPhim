@@ -26,6 +26,7 @@ import './assets/scss/bookingpage.scss'
 import './assets/scss/checkoutpage.scss'
 import './assets/scss/cinemapage.scss'
 import './assets/scss/searchpage.scss'
+import './assets/scss/allmoviespage.scss'
 
 
 
